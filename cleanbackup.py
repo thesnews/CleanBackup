@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """
 	Cleanbackup.py is the State News standardized server backup script
 	It started life as a humble Perl script in 2003 and continued to evolve
@@ -15,7 +16,7 @@
 	Currently only supports MySQLDump for database dumps. SQLite backups are
 	done by copying the directory.
 	
-	Version: 2.1
+	Version: 2.2
 	Author: mike joseph <josephm5@msu.edu>
 	Copyright: 2003-2010 The State News <http://statenews.com>
 	License: MIT License
@@ -26,7 +27,7 @@
 		PyYAML <http://pyyaml.org/wiki/PyYAML>
 """
 
-VERSION = '2.1'
+VERSION = '2.2'
 LOGFILE = '/var/log/cleanbackup.log'
 
 import sys
