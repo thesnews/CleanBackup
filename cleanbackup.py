@@ -40,10 +40,10 @@ import logging
 import logging.handlers
 
 from optparse import OptionParser
-from time import localtime, strftime
+from time import time, localtime, strftime
 
-# make sure file stats always return ints
-os.stat_float_times(False)
+# make sure file stats always return floats
+os.stat_float_times(True)
 
 # MAIN
 def main() :
@@ -94,8 +94,7 @@ def main() :
 										'%s_%s.sql' % (d, timeString))
 				cmd = 'mysqldump -p -c -u %s --password=%s %s > %s' % (u, p, d,
 						dumpPath)
-				stat = commands.getstatusoutput(cmd)
-				if stat[0] == 0 :
+				if commands.getstatusoutput(cmd)[0] == 0 :
 					# file dumped, gzip it and remove original dump
 					handle = open(dumpPath)
 					gzPath = os.path.join(outPath, '%s_%s.sql.gz' % 
@@ -110,14 +109,22 @@ def main() :
 					logOutput('Dumped and zipped %s' % d, level='info')
 				else :
 					logOutput('Unable to dump %s' % d, level='warning')
-	else:
+	else :
 		logOutput('No databases to export', level='info')
 	
 	logOutput('Backup operations complete', level='info')
 	
 	if configData.get('autoclean') :
+		logOutput('Starting autoclean', level='info')
+		logOutput('Removing anything older than %i day(s)' %
+					configData.get('autoclean'))
 		# autoclean value X number of seconds in a day
-		delta = configData.get('autoclean') * 86400
+		delta = time() - (configData.get('autoclean') * 86400)
+		for readPath, dirs, files in os.walk(outPath) :
+			for f in files :
+				if os.stat(os.path.join(readPath, f))[8] < delta :
+					logOutput('Removing %s' % f)
+					os.remove(os.path.join(readPath, f))
 	
 	logOutput('Done', level='info')
 	
