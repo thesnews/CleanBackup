@@ -1,18 +1,27 @@
 ---
-autoclean: 7                                        # days to keep old backups
-localStore: /Users/mike/Desktop/Backups             # global outpath
+# autoclean [int] - Number of days to keep old backups
+# set to 0 to disable
+autoclean: 7
+# Local directory to store backups
+localStore: /path/to/backups
+# Remote storage path [todo]
 remoteStore: false
+# A list of local directories to backup
 localFiles:
-  -
-    path: /Users/mike/Desktop/server_reports
-  - 
-    path: /Users/mike/Desktop/dompdf
-    localStore: /Users/mike/Desktop                    # per file outpath
+  - /path/to/dir1
+  - /path/to/dir2
+# A list of database connections and associated databases to dump [currently
+# only supports MySQL, use localFiles directive to backup SQLite]
 localDatabases:
   - 
-    username: foo
-    password: bar
+    username: username
+    password: mysuperpassword
     databases:
-      - foo
-      - bar
-      - baz
+      - somedatabase
+      - anotherdatabase
+  - 
+    username: anotherusername
+    password: mysuperpassword
+    databases:
+      - somedatabase
+      - anotherdatabase
