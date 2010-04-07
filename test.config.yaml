@@ -1,0 +1,18 @@
+---
+autoclean: 7
+localStore: /Users/mike/Desktop/Backups             # global outpath
+remoteStore: false
+localFiles:
+  -
+    path: /Users/mike/Desktop/server_reports
+  - 
+    path: /Users/mike/Desktop/dompdf
+    localStore: /Users/mike/Desktop                    # per file outpath
+localDatabases:
+  - 
+    username: foo
+    password: bar
+    databases:
+      - foo
+      - bar
+      - baz
