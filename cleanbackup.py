@@ -16,7 +16,10 @@
 	Currently only supports MySQLDump for database dumps. SQLite backups are
 	done by copying the directory.
 	
-	Version: 2.2
+	2.3 now supports Amazon S3 for remote backup storage. Requires the Boto
+	library.
+	
+	Version: 2.3
 	Author: mike joseph <josephm5@msu.edu>
 	Copyright: 2003-2010 The State News <http://statenews.com>
 	License: MIT License
@@ -25,9 +28,11 @@
 	Requires:
 		Python 2.5+
 		PyYAML <http://pyyaml.org/wiki/PyYAML>
+		Boto <http://code.google.com/p/boto>
+			Boto is only required for Amazon S3 remote storage integration
 """
 
-VERSION = '2.2'
+VERSION = '2.3'
 LOGFILE = '/var/log/cleanbackup.log'
 
 import sys
@@ -48,6 +53,19 @@ os.stat_float_times(True)
 # MAIN
 def main() :
 	configData = yaml.load(loadConfig(options.config))
+
+	remoteStorage = configData.get('remoteStore')
+	s3Bucket = False
+	
+	if remoteStorage and remoteStorage.get('enabled') :
+		from boto.s3.connection import S3Connection
+		from boto.s3.key import Key
+		
+		s3Conn = S3Connection(remoteStorage.get('awsKey'),
+								remoteStorage.get('awsSecret'))
+		s3Bucket = s3Conn.get_bucket(remoteStorage.get('awsBucket'))
+	else :
+		remoteStorage = False
 
 	outPath = configData.get('localStore')
 
@@ -77,6 +95,17 @@ def main() :
 						level='info')
 	
 			tar.close()
+			
+			if remoteStorage and s3Bucket :
+				s3Key = Key(s3Bucket)
+				s3Key.key = '%s_%s.tgz' % (os.path.basename(p), timeString)
+
+				logOutput('Sending to Amazon S3', level='info')
+				s3Key.set_contents_from_filename(tarPath)
+				s3Key.set_metadata( 'create-time', time() )
+
+				s3Key.close()
+				s3Key = False
 	else :
 		logOutput("No files to tarball", level='info')
 
@@ -105,6 +134,18 @@ def main() :
 					os.remove(dumpPath)
 					
 					logOutput('Dumped and zipped %s' % d, level='info')
+
+					if remoteStorage and s3Bucket :
+						s3Key = Key(s3Bucket)
+						s3Key.key = '%s_%s.sql' % (d, timeString)
+		
+						logOutput('Sending to Amazon S3', level='info')
+						s3Key.set_contents_from_filename(gzPath)
+						s3Key.set_metadata( 'create-time', time() )
+		
+						s3Key.close()
+						s3Key = False
+
 				else :
 					logOutput('Unable to dump %s' % d, level='warning')
 	else :
@@ -123,6 +164,14 @@ def main() :
 				if os.stat(os.path.join(readPath, f))[8] < delta :
 					logOutput('Removing %s' % f, level='info')
 					os.remove(os.path.join(readPath, f))
+					
+		if remoteStorage and s3Bucket:
+			logOutput('Removing old files from AmazonS3', level='info')
+			for k in s3Bucket.get_all_keys() :
+				if(k.get_metadata('create-time') and
+					k.get_metadata('create-time') < delta) :
+					logOutput('Removing %s' % k.key, level='info')
+					k.delete()
 	
 	logOutput('Done', level='info')
 	

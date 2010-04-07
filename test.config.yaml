@@ -4,8 +4,13 @@
 autoclean: 7
 # Local directory to store backups
 localStore: /path/to/backups
-# Remote storage path [todo]
-remoteStore: false
+# Remote storage via AmazonS3
+# To disable, just set enabled to false, or just remove all connection info
+remoteStore:
+    enabled: true
+    awsKey: YOURAWSKEY
+    awsSecret: YOURAWSSECRETKEY
+    awsBucket: yourbucketname
 # A list of local directories to backup
 localFiles:
   - /path/to/dir1
