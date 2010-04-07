@@ -121,7 +121,7 @@ def main() :
 		for readPath, dirs, files in os.walk(outPath) :
 			for f in files :
 				if os.stat(os.path.join(readPath, f))[8] < delta :
-					logOutput('Removing %s' % f)
+					logOutput('Removing %s' % f, level='info')
 					os.remove(os.path.join(readPath, f))
 	
 	logOutput('Done', level='info')
@@ -135,7 +135,7 @@ def loadConfig( configFile ) :
 							configFile + '.config.yaml')
 							
 	if not os.access(filePath, os.R_OK) :
-		logOutput('%s not found' % filepath, level='warning')
+		logOutput('%s not found' % filePath, level='warning')
 		exit(2)
 
 	handle = open(filePath)
