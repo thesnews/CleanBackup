@@ -1,5 +1,5 @@
 ---
-autoclean: 7
+autoclean: 7                                        # days to keep old backups
 localStore: /Users/mike/Desktop/Backups             # global outpath
 remoteStore: false
 localFiles:
