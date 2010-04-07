@@ -12,6 +12,9 @@
 	
 	See the config file for more information.
 	
+	Currently only supports MySQLDump for database dumps. SQLite backups are
+	done by copying the directory.
+	
 	Version: 2.1
 	Author: mike joseph <josephm5@msu.edu>
 	Copyright: 2003-2010 The State News <http://statenews.com>
@@ -31,11 +34,16 @@ import sys
 import os
 import yaml
 import tarfile
+import gzip
+import commands
 import logging
 import logging.handlers
 
 from optparse import OptionParser
 from time import localtime, strftime
+
+# make sure file stats always return ints
+os.stat_float_times(False)
 
 # MAIN
 def main() :
@@ -50,36 +58,68 @@ def main() :
 		exit(3)
 	
 	# process new file tarballs
-	for p in configData.get('localFiles') :
+	if configData.get('localFiles') :
+		logOutput('Starting file backup', level='info')
+		for p in configData.get('localFiles') :
+			
+			dirPath = p.get('path')
+			
+			outPath = globalOutPath
+			if p.get('localStore') :
+				outPath = p.get( 'localStore')
+				if not os.access(outPath, os.W_OK) :
+					logOutput("Could not open outdir: %s" % outPath,
+								level='warning')
+					continue
+					
+			tarPath = os.path.join(outPath, '%s_%s.tgz' %
+									(os.path.basename(dirPath), timeString))
+	
+			tar = tarfile.open( tarPath, 'w:gz')
+			logOutput("Tarballing %s" % dirPath, level='info')
+			
+			# arcname keeps tarball from rebuilding entire tree leading 
+			# up to dir
+			tar.add(dirPath, os.path.basename(dirPath))
+			info = tar.gettarinfo(tarPath)
+	
+			logOutput("Tarballed %s @ %i bytes" % (info.name, info.size),
+						level='info')
+	
+			tar.close()
+	else :
+		logOutput("No files to tarball", level='info')
+
+	if configData.get('localDatabases') :
+		logOutput('Starting database backup', level='info')
 		
-		dirPath = p.get('path')
-		
-		outPath = globalOutPath
-		if p.get('localStore') :
-			outPath = p.get( 'localStore')
-			if not os.access(outPath, os.W_OK) :
-				logOutput("Could not open outdir: %s" % outPath,
-							level='warning')
-				continue
-				
-		tarPath = os.path.join(outPath, os.path.basename(dirPath) + '_' +
-								timeString + '.tgz')
-
-		tar = tarfile.open( tarPath, 'w:gz')
-		logOutput("Tarballing %s" % dirPath, level='info')
-		
-		# arcname keeps tarball from rebuilding entire tree leading up to dir
-		tar.add(dirPath, os.path.basename(dirPath))
-		info = tar.gettarinfo(tarPath)
-
-		logOutput("Tarballed %s @ %i bytes" % (info.name, info.size),
-					level='info')
-
-		tar.close()
-
-	for db in configData.get('localDatabases') :
-		u = db.get('username')
-		p = db.get('password')
+		for db in configData.get('localDatabases') :
+			u = db.get('username')
+			p = db.get('password')
+			
+			for d in db.get('databases') :
+				dumpPath = os.path.join(globalOutPath, 
+										'%s_%s.sql' % (d, timeString))
+				cmd = 'mysqldump -p -c -u %s --password=%s %s > %s' % (u, p, d,
+						dumpPath)
+				stat = commands.getstatusoutput(cmd)
+				if stat[0] == 0 :
+					# file dumped, gzip it and remove original dump
+					handle = open(dumpPath)
+					gzPath = os.path.join(globalOutPath,
+											'%s_%s.sql.gz' % (d, timeString))
+					gzfile = gzip.open(gzPath, 'wb')
+					gzfile.writelines(handle)
+					gzfile.close()
+					handle.close()
+					
+					os.remove(dumpPath)
+					
+					logOutput('Dumped and zipped %s' % d, level='info')
+				else :
+					logOutput('Unable to dump %s' % d, level='warning')
+	else:
+		logOutput('No databases to export', level='info')
 	
 	
 # end MAIN
