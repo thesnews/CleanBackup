@@ -53,8 +53,8 @@ def main() :
 
 	timeString = strftime('%Y%m%d')
 	
-	if not os.access(globalOutPath, os.W_OK) :
-		logOutput("Could not open outdir: %s" % globalOutPath, level='warning')
+	if not os.access(outPath, os.W_OK) :
+		logOutput("Could not open outdir: %s" % outPath, level='warning')
 		exit(3)
 	
 	# process new file tarballs
