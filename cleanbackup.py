@@ -49,7 +49,7 @@ os.stat_float_times(False)
 def main() :
 	configData = yaml.load(loadConfig(options.config))
 
-	globalOutPath = configData.get('localStore')
+	outPath = configData.get('localStore')
 
 	timeString = strftime('%Y%m%d')
 	
@@ -63,14 +63,6 @@ def main() :
 		for p in configData.get('localFiles') :
 			
 			dirPath = p.get('path')
-			
-			outPath = globalOutPath
-			if p.get('localStore') :
-				outPath = p.get( 'localStore')
-				if not os.access(outPath, os.W_OK) :
-					logOutput("Could not open outdir: %s" % outPath,
-								level='warning')
-					continue
 					
 			tarPath = os.path.join(outPath, '%s_%s.tgz' %
 									(os.path.basename(dirPath), timeString))
@@ -98,7 +90,7 @@ def main() :
 			p = db.get('password')
 			
 			for d in db.get('databases') :
-				dumpPath = os.path.join(globalOutPath, 
+				dumpPath = os.path.join(outPath, 
 										'%s_%s.sql' % (d, timeString))
 				cmd = 'mysqldump -p -c -u %s --password=%s %s > %s' % (u, p, d,
 						dumpPath)
@@ -106,8 +98,8 @@ def main() :
 				if stat[0] == 0 :
 					# file dumped, gzip it and remove original dump
 					handle = open(dumpPath)
-					gzPath = os.path.join(globalOutPath,
-											'%s_%s.sql.gz' % (d, timeString))
+					gzPath = os.path.join(outPath, '%s_%s.sql.gz' % 
+						(d, timeString))
 					gzfile = gzip.open(gzPath, 'wb')
 					gzfile.writelines(handle)
 					gzfile.close()
@@ -121,6 +113,13 @@ def main() :
 	else:
 		logOutput('No databases to export', level='info')
 	
+	logOutput('Backup operations complete', level='info')
+	
+	if configData.get('autoclean') :
+		# autoclean value X number of seconds in a day
+		delta = configData.get('autoclean') * 86400
+	
+	logOutput('Done', level='info')
 	
 # end MAIN
 
