@@ -1,0 +1,25 @@
+Cleanbackup.py is the State News standardized server backup script
+It started life as a humble Perl script in 2003 and continued to evolve
+from there.
+
+Cleanbackup.py will loop through directories provided in the config file,
+tarball them and drop them into the output folder. If database connection
+information is provided, it'll dump those too.
+
+After running the backup, the script will then remove any backups (of those
+it tracks) that are older than the specified timeout.
+
+See the config file for more information.
+
+Currently only supports MySQLDump for database dumps. SQLite backups are
+done by copying the directory.
+
+Version: 2.1
+Author: mike joseph <josephm5@msu.edu>
+Copyright: 2003-2010 The State News <http://statenews.com>
+License: MIT License
+	<http://www.opensource.org/licenses/mit-license.php>
+
+Requires:
+	Python 2.5+
+	PyYAML <http://pyyaml.org/wiki/PyYAML>
