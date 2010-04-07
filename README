@@ -14,12 +14,16 @@ See the config file for more information.
 Currently only supports MySQLDump for database dumps. SQLite backups are
 done by copying the directory.
 
-Version: 2.1
+2.3 now supports Amazon S3 for remote backup storage. Requires the Boto
+library.
+
+Version: 2.3
 Author: mike joseph <josephm5@msu.edu>
 Copyright: 2003-2010 The State News <http://statenews.com>
-License: MIT License
-	<http://www.opensource.org/licenses/mit-license.php>
+License: MIT License <http://www.opensource.org/licenses/mit-license.php>
 
 Requires:
-	Python 2.5+
-	PyYAML <http://pyyaml.org/wiki/PyYAML>
+Python 2.5+
+PyYAML <http://pyyaml.org/wiki/PyYAML>
+Boto <http://code.google.com/p/boto>
+Boto is only required for Amazon S3 remote storage integration
