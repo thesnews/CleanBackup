@@ -27,8 +27,7 @@
 """
 
 VERSION = '2.1'
-#LOGFILE = '/var/log/cleanbackup.log'
-LOGFILE = './cleanbackup.log'
+LOGFILE = '/var/log/cleanbackup.log'
 
 import sys
 import os
@@ -62,17 +61,15 @@ def main() :
 		logOutput('Starting file backup', level='info')
 		for p in configData.get('localFiles') :
 			
-			dirPath = p.get('path')
-					
 			tarPath = os.path.join(outPath, '%s_%s.tgz' %
-									(os.path.basename(dirPath), timeString))
+									(os.path.basename(p), timeString))
 	
 			tar = tarfile.open( tarPath, 'w:gz')
-			logOutput("Tarballing %s" % dirPath, level='info')
+			logOutput("Tarballing %s" % p, level='info')
 			
 			# arcname keeps tarball from rebuilding entire tree leading 
 			# up to dir
-			tar.add(dirPath, os.path.basename(dirPath))
+			tar.add(p, os.path.basename(p))
 			info = tar.gettarinfo(tarPath)
 	
 			logOutput("Tarballed %s @ %i bytes" % (info.name, info.size),
