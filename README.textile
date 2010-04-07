@@ -1,3 +1,5 @@
+h1. CleanBackup[.py]
+
 Cleanbackup.py is the State News standardized server backup script
 It started life as a humble Perl script in 2003 and continued to evolve
 from there.
@@ -18,12 +20,12 @@ done by copying the directory.
 library.
 
 Version: 2.3
-Author: mike joseph <josephm5@msu.edu>
-Copyright: 2003-2010 The State News <http://statenews.com>
-License: MIT License <http://www.opensource.org/licenses/mit-license.php>
+Author: mike joseph "josephm5@msu.edu":mailto:josephm5@msu.edu
+Copyright: 2003-2010 The State News "http://statenews.com":http://statenews.com
+License: MIT License "http://www.opensource.org/licenses/mit-license.php":http://www.opensource.org/licenses/mit-license.php
 
 Requires:
 Python 2.5+
-PyYAML <http://pyyaml.org/wiki/PyYAML>
-Boto <http://code.google.com/p/boto>
+PyYAML "http://pyyaml.org/wiki/PyYAML":http://pyyaml.org/wiki/PyYAML
+Boto "http://code.google.com/p/boto":http://code.google.com/p/boto
 Boto is only required for Amazon S3 remote storage integration
