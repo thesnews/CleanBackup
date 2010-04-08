@@ -19,7 +19,7 @@
 	2.3 now supports Amazon S3 for remote backup storage. Requires the Boto
 	library.
 	
-	Version: 2.3
+	Version: 2.3.1
 	Author: mike joseph <josephm5@msu.edu>
 	Copyright: 2003-2010 The State News <http://statenews.com>
 	License: MIT License
@@ -32,7 +32,7 @@
 			Boto is only required for Amazon S3 remote storage integration
 """
 
-VERSION = '2.3'
+VERSION = '2.3.1'
 LOGFILE = '/var/log/cleanbackup.log'
 
 import sys
@@ -116,10 +116,13 @@ def main() :
 			u = db.get('username')
 			p = db.get('password')
 			
+			myBin = os.path.join(configData.get('mysqlbin'), 'mysqldump')
+			
 			for d in db.get('databases') :
+
 				dumpPath = os.path.join(outPath, 
 										'%s_%s.sql' % (d, timeString))
-				cmd = 'mysqldump -p -c -u %s --password=%s %s > %s' % (u, p, d,
+				cmd = '%s -p -c -u %s --password=%s %s > %s' % (myBin, u, p, d,
 						dumpPath)
 				if commands.getstatusoutput(cmd)[0] == 0 :
 					# file dumped, gzip it and remove original dump

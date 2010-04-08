@@ -30,3 +30,5 @@ localDatabases:
     databases:
       - somedatabase
       - anotherdatabase
+# default path to your mysql binary commands [i.e. mysqldump, mysql]
+mysqlbin: /usr/sbin
